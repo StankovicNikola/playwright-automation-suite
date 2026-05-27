@@ -7,17 +7,17 @@ export class LoginPage extends BasePage {
   }
 
   async goto(): Promise<void> {
-    await this.navigate('/login')
+    await this.navigate('/')
   }
 
-  async login(email: string, password: string): Promise<void> {
-    await this.getByTestId('email-input').fill(email)
-    await this.getByTestId('password-input').fill(password)
-    await this.getByTestId('login-submit').click()
+  async login(username: string, password: string): Promise<void> {
+    await this.page.getByTestId('username').fill(username)
+    await this.page.getByTestId('password').fill(password)
+    await this.page.getByTestId('login-button').click()
   }
 
   async assertErrorVisible(message?: string): Promise<void> {
-    const error = this.getByTestId('login-error')
+    const error = this.page.getByTestId('error')
     await expect(error).toBeVisible()
     if (message) await expect(error).toContainText(message)
   }

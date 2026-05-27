@@ -12,7 +12,7 @@ export default defineConfig({
     ['html', { outputFolder: 'playwright-report', open: 'never' }],
   ],
   use: {
-    baseURL: process.env.BASE_URL ?? 'https://example.com',
+    baseURL: process.env.BASE_URL ?? 'https://www.saucedemo.com',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'on-first-retry',

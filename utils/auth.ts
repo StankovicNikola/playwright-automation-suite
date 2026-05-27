@@ -1,19 +1,9 @@
-import { Page, BrowserContext } from '@playwright/test'
-import { ApiClient } from './api-client'
+import { Page } from '@playwright/test'
 
-export async function loginViaApi(
-  context: BrowserContext,
-  email: string,
-  password: string,
-): Promise<void> {
-  const request = await context.request
-  const client = new ApiClient(request)
-  const { token, sessionId } = await client.login(email, password)
-
-  await context.addCookies([{ name: 'session', value: sessionId, url: process.env.BASE_URL! }])
-  await context.addInitScript((t) => localStorage.setItem('auth_token', t), token)
-}
-
-export async function saveStorageState(page: Page, path: string): Promise<void> {
-  await page.context().storageState({ path })
+export async function loginViaUi(page: Page, username: string, password: string): Promise<void> {
+  await page.goto('/')
+  await page.getByTestId('username').fill(username)
+  await page.getByTestId('password').fill(password)
+  await page.getByTestId('login-button').click()
+  await page.waitForURL(/inventory\.html/)
 }

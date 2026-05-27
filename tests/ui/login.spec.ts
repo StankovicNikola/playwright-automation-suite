@@ -1,51 +1,60 @@
 import { test, expect } from '@playwright/test'
 import { LoginPage } from '../../pages/LoginPage'
-import { DashboardPage } from '../../pages/DashboardPage'
+import { InventoryPage } from '../../pages/InventoryPage'
+import { users } from '../../utils/users'
 
-test.describe('Authentication', () => {
+test.describe('Login', () => {
   let loginPage: LoginPage
-  let dashboardPage: DashboardPage
+  let inventoryPage: InventoryPage
 
   test.beforeEach(async ({ page }) => {
     loginPage = new LoginPage(page)
-    dashboardPage = new DashboardPage(page)
+    inventoryPage = new InventoryPage(page)
     await loginPage.goto()
   })
 
   test.describe('Valid credentials', () => {
-    test('logs in and lands on dashboard', async ({ page }) => {
-      await loginPage.login('testuser@example.com', 'Test@1234')
-      await dashboardPage.assertLoaded()
+    test('standard_user logs in and lands on inventory', async () => {
+      await loginPage.login(users.standard.username, users.standard.password)
+      await inventoryPage.assertLoaded()
     })
 
-    test('logs out successfully', async ({ page }) => {
-      await loginPage.login('testuser@example.com', 'Test@1234')
-      await dashboardPage.assertLoaded()
-      await dashboardPage.logout()
-      await expect(page).toHaveURL(/login/)
+    test('performance_glitch_user eventually logs in', async () => {
+      await loginPage.login(users.glitch.username, users.glitch.password)
+      await inventoryPage.assertLoaded()
     })
   })
 
   test.describe('Invalid credentials', () => {
     test('shows error for wrong password', async () => {
-      await loginPage.login('testuser@example.com', 'WrongPass')
-      await loginPage.assertErrorVisible('Invalid email or password')
+      await loginPage.login('standard_user', 'wrong_password')
+      await loginPage.assertErrorVisible('Username and password do not match')
     })
 
-    test('shows error for unknown email', async () => {
-      await loginPage.login('ghost@example.com', 'Test@1234')
-      await loginPage.assertErrorVisible('Invalid email or password')
+    test('locked_out_user cannot log in', async () => {
+      await loginPage.login(users.locked.username, users.locked.password)
+      await loginPage.assertErrorVisible('Sorry, this user has been locked out')
+    })
+
+    test('shows error when username is missing', async ({ page }) => {
+      await page.getByTestId('password').fill('secret_sauce')
+      await page.getByTestId('login-button').click()
+      await loginPage.assertErrorVisible('Username is required')
+    })
+
+    test('shows error when password is missing', async ({ page }) => {
+      await page.getByTestId('username').fill('standard_user')
+      await page.getByTestId('login-button').click()
+      await loginPage.assertErrorVisible('Password is required')
     })
   })
 
-  test.describe('Accessibility', () => {
-    test('login form is keyboard-navigable', async ({ page }) => {
-      await page.keyboard.press('Tab')
-      await expect(loginPage.getByTestId('email-input')).toBeFocused()
-      await page.keyboard.press('Tab')
-      await expect(loginPage.getByTestId('password-input')).toBeFocused()
-      await page.keyboard.press('Tab')
-      await expect(loginPage.getByTestId('login-submit')).toBeFocused()
+  test.describe('Session', () => {
+    test('logs out and redirects to login', async ({ page }) => {
+      await loginPage.login(users.standard.username, users.standard.password)
+      await inventoryPage.assertLoaded()
+      await inventoryPage.logout()
+      await expect(page).toHaveURL('/')
     })
   })
 })
