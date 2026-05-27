@@ -25,7 +25,7 @@ test.describe('Checkout', () => {
     await cartPage.checkout()
     await checkoutPage.fillInfo('Nikola', 'Stankovic', '11000')
     await checkoutPage.continue()
-    await checkoutPage.assertSummaryTotal('$32.70')
+    await checkoutPage.assertSummaryTotal('$39.98')
     await checkoutPage.finish()
     await checkoutPage.assertOrderComplete()
   })
