@@ -27,7 +27,7 @@ test.describe('Login', () => {
 
   test.describe('Invalid credentials', () => {
     test('shows error for wrong password', async () => {
-      await loginPage.login('standard_user', 'wrong_password')
+      await loginPage.login(users.standard.username, 'wrong_password')
       await loginPage.assertErrorVisible('Username and password do not match')
     })
 
@@ -36,15 +36,15 @@ test.describe('Login', () => {
       await loginPage.assertErrorVisible('Sorry, this user has been locked out')
     })
 
-    test('shows error when username is missing', async ({ page }) => {
-      await page.getByTestId('password').fill('secret_sauce')
-      await page.getByTestId('login-button').click()
+    test('shows error when username is missing', async () => {
+      await loginPage.fillPassword(users.standard.password)
+      await loginPage.submit()
       await loginPage.assertErrorVisible('Username is required')
     })
 
-    test('shows error when password is missing', async ({ page }) => {
-      await page.getByTestId('username').fill('standard_user')
-      await page.getByTestId('login-button').click()
+    test('shows error when password is missing', async () => {
+      await loginPage.fillUsername(users.standard.username)
+      await loginPage.submit()
       await loginPage.assertErrorVisible('Password is required')
     })
   })

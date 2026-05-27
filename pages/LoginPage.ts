@@ -10,10 +10,22 @@ export class LoginPage extends BasePage {
     await this.navigate('/')
   }
 
-  async login(username: string, password: string): Promise<void> {
+  async fillUsername(username: string): Promise<void> {
     await this.page.getByTestId('username').fill(username)
+  }
+
+  async fillPassword(password: string): Promise<void> {
     await this.page.getByTestId('password').fill(password)
+  }
+
+  async submit(): Promise<void> {
     await this.page.getByTestId('login-button').click()
+  }
+
+  async login(username: string, password: string): Promise<void> {
+    await this.fillUsername(username)
+    await this.fillPassword(password)
+    await this.submit()
   }
 
   async assertErrorVisible(message?: string): Promise<void> {

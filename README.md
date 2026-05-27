@@ -27,7 +27,9 @@ tests/
     └── checkout.spec.ts    # End-to-end checkout flow
 utils/
 ├── auth.ts             # loginViaUi helper
-└── users.ts            # Test user credentials
+├── users.ts            # Test user credentials
+├── products.ts         # Product names and expected sort/price values
+└── checkoutData.ts     # Checkout form data and expected order total
 playwright.config.ts
 ```
 
@@ -98,7 +100,7 @@ npm run report:allure    # generate and open Allure report
 
 | Test | Description |
 |------|-------------|
-| Full checkout flow | Add 2 items → cart → info form → verify `$32.70` total → complete |
+| Full checkout flow | Add 2 items → cart → info form → verify `$39.98` total → complete |
 | Missing first name | Error: "First Name is required" |
 | Missing last name | Error: "Last Name is required" |
 | Missing postal code | Error: "Postal Code is required" |
@@ -110,9 +112,11 @@ All pages extend `BasePage`, which wraps `page.goto()` with `waitForLoadState('n
 
 ```ts
 await loginPage.goto()
-await loginPage.login('standard_user', 'secret_sauce')
+await loginPage.login(users.standard.username, users.standard.password)
 await inventoryPage.assertLoaded()
 ```
+
+No selector strings or credential literals appear in test files — all locators live in page classes and all test data is imported from `utils/`.
 
 ## Utilities
 
@@ -123,6 +127,14 @@ await inventoryPage.assertLoaded()
 ### `utils/users.ts`
 
 Centralised credential object — import `users.standard`, `users.locked`, `users.glitch`, `users.problem` anywhere in the suite.
+
+### `utils/products.ts`
+
+Product names (`backpack`, `bikeLight`), sort expectations (`firstAZ`, `firstZA`), and boundary prices (`lowestPrice`, `highestPrice`) used across inventory and checkout tests.
+
+### `utils/checkoutData.ts`
+
+`checkoutData.validInfo` object containing `firstName`, `lastName`, `postalCode`, and `expectedTotal` — consumed by all checkout tests.
 
 ## Cross-browser & mobile
 

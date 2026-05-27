@@ -41,8 +41,24 @@ export class InventoryPage extends BasePage {
     await this.page.getByTestId('product-sort-container').selectOption(option)
   }
 
+  getItemName(item: Locator): Locator {
+    return item.locator('.inventory_item_name')
+  }
+
+  getItemPrice(item: Locator): Locator {
+    return item.locator('.inventory_item_price')
+  }
+
+  getItemButton(item: Locator): Locator {
+    return item.locator('button')
+  }
+
   getCartBadge(): Locator {
     return this.page.locator('.shopping_cart_badge')
+  }
+
+  async assertCartBadgeNotVisible(): Promise<void> {
+    await expect(this.page.locator('.shopping_cart_badge')).not.toBeVisible()
   }
 
   async goToCart(): Promise<void> {

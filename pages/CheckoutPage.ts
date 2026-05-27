@@ -28,4 +28,8 @@ export class CheckoutPage extends BasePage {
   async assertSummaryTotal(expected: string): Promise<void> {
     await expect(this.page.locator('.summary_subtotal_label')).toContainText(expected)
   }
+
+  async assertErrorVisible(message: string): Promise<void> {
+    await expect(this.page.getByTestId('error')).toContainText(message)
+  }
 }
