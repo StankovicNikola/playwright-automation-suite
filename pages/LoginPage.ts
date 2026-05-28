@@ -1,9 +1,18 @@
-import { Page, expect } from '@playwright/test'
+import { Page, Locator, expect } from '@playwright/test'
 import { BasePage } from './BasePage'
 
 export class LoginPage extends BasePage {
+  private readonly usernameInput: Locator
+  private readonly passwordInput: Locator
+  private readonly loginButton: Locator
+  private readonly errorMessage: Locator
+
   constructor(page: Page) {
     super(page)
+    this.usernameInput = page.getByTestId('username')
+    this.passwordInput = page.getByTestId('password')
+    this.loginButton = page.getByTestId('login-button')
+    this.errorMessage = page.getByTestId('error')
   }
 
   async goto(): Promise<void> {
@@ -11,15 +20,15 @@ export class LoginPage extends BasePage {
   }
 
   async fillUsername(username: string): Promise<void> {
-    await this.page.getByTestId('username').fill(username)
+    await this.usernameInput.fill(username)
   }
 
   async fillPassword(password: string): Promise<void> {
-    await this.page.getByTestId('password').fill(password)
+    await this.passwordInput.fill(password)
   }
 
   async submit(): Promise<void> {
-    await this.page.getByTestId('login-button').click()
+    await this.loginButton.click()
   }
 
   async login(username: string, password: string): Promise<void> {
@@ -29,8 +38,7 @@ export class LoginPage extends BasePage {
   }
 
   async assertErrorVisible(message?: string): Promise<void> {
-    const error = this.page.getByTestId('error')
-    await expect(error).toBeVisible()
-    if (message) await expect(error).toContainText(message)
+    await expect(this.errorMessage).toBeVisible()
+    if (message) await expect(this.errorMessage).toContainText(message)
   }
 }

@@ -2,8 +2,33 @@ import { Page, Locator, expect } from '@playwright/test'
 import { BasePage } from './BasePage'
 
 export class InventoryPage extends BasePage {
+  private readonly inventoryList: Locator
+  private readonly inventoryItems: Locator
+  private readonly itemNames: Locator
+  private readonly itemPrices: Locator
+  private readonly sortContainer: Locator
+  private readonly cartBadge: Locator
+  private readonly cartLink: Locator
+  private readonly burgerMenuBtn: Locator
+  private readonly logoutSidebarLink: Locator
+
+  private readonly itemSelectors = {
+    name: '.inventory_item_name',
+    price: '.inventory_item_price',
+    button: 'button',
+  }
+
   constructor(page: Page) {
     super(page)
+    this.inventoryList = page.locator('.inventory_list')
+    this.inventoryItems = page.locator('.inventory_item')
+    this.itemNames = page.locator('.inventory_item_name')
+    this.itemPrices = page.locator('.inventory_item_price')
+    this.sortContainer = page.getByTestId('product-sort-container')
+    this.cartBadge = page.locator('.shopping_cart_badge')
+    this.cartLink = page.locator('.shopping_cart_link')
+    this.burgerMenuBtn = page.locator('#react-burger-menu-btn')
+    this.logoutSidebarLink = page.locator('#logout_sidebar_link')
   }
 
   async goto(): Promise<void> {
@@ -12,19 +37,31 @@ export class InventoryPage extends BasePage {
 
   async assertLoaded(): Promise<void> {
     await expect(this.page).toHaveURL(/inventory\.html/)
-    await expect(this.page.locator('.inventory_list')).toBeVisible()
+    await expect(this.inventoryList).toBeVisible()
   }
 
   getItems(): Locator {
-    return this.page.locator('.inventory_item')
+    return this.inventoryItems
   }
 
   getItemNames(): Locator {
-    return this.page.locator('.inventory_item_name')
+    return this.itemNames
   }
 
   getItemPrices(): Locator {
-    return this.page.locator('.inventory_item_price')
+    return this.itemPrices
+  }
+
+  getItemName(item: Locator): Locator {
+    return item.locator(this.itemSelectors.name)
+  }
+
+  getItemPrice(item: Locator): Locator {
+    return item.locator(this.itemSelectors.price)
+  }
+
+  getItemButton(item: Locator): Locator {
+    return item.locator(this.itemSelectors.button)
   }
 
   async addToCartByName(name: string): Promise<void> {
@@ -38,35 +75,23 @@ export class InventoryPage extends BasePage {
   }
 
   async sortBy(option: 'az' | 'za' | 'lohi' | 'hilo'): Promise<void> {
-    await this.page.getByTestId('product-sort-container').selectOption(option)
-  }
-
-  getItemName(item: Locator): Locator {
-    return item.locator('.inventory_item_name')
-  }
-
-  getItemPrice(item: Locator): Locator {
-    return item.locator('.inventory_item_price')
-  }
-
-  getItemButton(item: Locator): Locator {
-    return item.locator('button')
+    await this.sortContainer.selectOption(option)
   }
 
   getCartBadge(): Locator {
-    return this.page.locator('.shopping_cart_badge')
+    return this.cartBadge
   }
 
   async assertCartBadgeNotVisible(): Promise<void> {
-    await expect(this.page.locator('.shopping_cart_badge')).not.toBeVisible()
+    await expect(this.cartBadge).not.toBeVisible()
   }
 
   async goToCart(): Promise<void> {
-    await this.page.locator('.shopping_cart_link').click()
+    await this.cartLink.click()
   }
 
   async logout(): Promise<void> {
-    await this.page.locator('#react-burger-menu-btn').click()
-    await this.page.locator('#logout_sidebar_link').click()
+    await this.burgerMenuBtn.click()
+    await this.logoutSidebarLink.click()
   }
 }
