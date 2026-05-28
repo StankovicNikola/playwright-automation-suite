@@ -108,7 +108,27 @@ npm run report:allure    # generate and open Allure report
 
 ## Page Object Model
 
-All pages extend `BasePage`, which wraps `page.goto()` with `waitForLoadState('networkidle')` and exposes a shared `getByTestId` locator helper. Page classes expose async methods:
+All pages extend `BasePage`, which wraps `page.goto()` with `waitForLoadState('networkidle')` and exposes a shared `getByTestId` locator helper. Each page class declares `private readonly` `Locator` fields initialised in the constructor — no selector strings appear outside the class that owns them:
+
+```ts
+export class LoginPage extends BasePage {
+  private readonly usernameInput: Locator
+  private readonly passwordInput: Locator
+  private readonly loginButton: Locator
+  private readonly errorMessage: Locator
+
+  constructor(page: Page) {
+    super(page)
+    this.usernameInput = page.getByTestId('username')
+    this.passwordInput = page.getByTestId('password')
+    this.loginButton  = page.getByTestId('login-button')
+    this.errorMessage = page.getByTestId('error')
+  }
+  // ...
+}
+```
+
+For item-scoped sub-locators (e.g. the name/price/button inside each inventory card) `InventoryPage` keeps a `private readonly itemSelectors` object of selector strings used when scoping to a specific item locator. Methods reference these fields rather than inlining strings. Page classes expose async methods:
 
 ```ts
 await loginPage.goto()
